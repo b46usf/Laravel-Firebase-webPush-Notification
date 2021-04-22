@@ -41,14 +41,13 @@
 
 
     var firebaseConfig = {
-        apiKey: "asasas",
-        authDomain: "itdemo-push-notification.firebaseapp.com",
-        databaseURL: "https://itdemo-push-notification.firebaseio.com",
-        projectId: "itdemo-push-notification",
-        storageBucket: "itdemo-push-notification.appspot.com",
-        messagingSenderId: "asas",
-        appId: "asas",
-        measurementId: "G-VMJ68DFLXL"
+        apiKey: "AIzaSyDz2XnmikLRO8-OtKDtyamKtXw9siYoX4g",
+        authDomain: "learnapi-2f9e0.firebaseapp.com",
+        projectId: "learnapi-2f9e0",
+        storageBucket: "learnapi-2f9e0.appspot.com",
+        messagingSenderId: "43647748479",
+        appId: "1:43647748479:web:65b36ef89d8d5b80a7724a",
+        measurementId: "G-194896LJQN"
     };
     // measurementId: G-R1KQTR3JBN
       // Initialize Firebase

@@ -2,33 +2,33 @@
 Give the service worker access to Firebase Messaging.
 Note that you can only use Firebase Messaging here, other Firebase libraries are not available in the service worker.
 */
-importScripts('https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/7.23.0/firebase-messaging.js');
+importScripts("https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js");
+importScripts(
+    "https://www.gstatic.com/firebasejs/7.23.0/firebase-messaging.js"
+);
 
 /*
 Initialize the Firebase app in the service worker by passing in the messagingSenderId.
 * New configuration for app@pulseservice.com
 */
 firebase.initializeApp({
-            apiKey: "asasas",
-            authDomain: "itdemo-push-notification.firebaseapp.com",
-            databaseURL: "https://itdemo-push-notification.firebaseio.com",
-            projectId: "itdemo-push-notification",
-            storageBucket: "itdemo-push-notification.appspot.com",
-            messagingSenderId: "257055232313",
-            appId: "asaasas",
-            measurementId: "G-VMJ68DFLXL"
-            // measurementId: "G-R1KQTR3JBN"
-        });
+    apiKey: "AIzaSyDz2XnmikLRO8-OtKDtyamKtXw9siYoX4g",
+    authDomain: "learnapi-2f9e0.firebaseapp.com",
+    projectId: "learnapi-2f9e0",
+    storageBucket: "learnapi-2f9e0.appspot.com",
+    messagingSenderId: "43647748479",
+    appId: "1:43647748479:web:65b36ef89d8d5b80a7724a",
+    measurementId: "G-194896LJQN",
+});
 
 /*
 Retrieve an instance of Firebase Messaging so that it can handle background messages.
 */
 const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(function(payload) {
+messaging.setBackgroundMessageHandler(function (payload) {
     console.log(
         "[firebase-messaging-sw.js] Received background message ",
-        payload,
+        payload
     );
     // Customize notification here
     const notificationTitle = "Background Message Title";
@@ -39,6 +39,6 @@ messaging.setBackgroundMessageHandler(function(payload) {
 
     return self.registration.showNotification(
         notificationTitle,
-        notificationOptions,
+        notificationOptions
     );
 });
