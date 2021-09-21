@@ -43,6 +43,7 @@
     var firebaseConfig = {
         apiKey: "AIzaSyDz2XnmikLRO8-OtKDtyamKtXw9siYoX4g",
         authDomain: "learnapi-2f9e0.firebaseapp.com",
+        databaseURL: "https://learnapi-2f9e0-default-rtdb.firebaseio.com",
         projectId: "learnapi-2f9e0",
         storageBucket: "learnapi-2f9e0.appspot.com",
         messagingSenderId: "43647748479",
