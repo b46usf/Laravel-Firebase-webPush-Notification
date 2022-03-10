@@ -63,7 +63,10 @@ class HomeController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
               
         $response = curl_exec($ch);
-
-        dd($response);
+        return $response;
+        // return redirect('/home');
+        // echo json_encode($response);
+        // dd($response);
+        // {{ route('send.notification') }}
     }
 }

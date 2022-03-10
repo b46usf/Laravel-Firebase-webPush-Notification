@@ -17,17 +17,17 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('send.notification') }}" method="POST">
+                    <form action="{{ url('send-notification') }}" method="post">
                         @csrf
                         <div class="form-group">
                             <label>Title</label>
-                            <input type="text" class="form-control" name="title">
+                            <input type="text" class="form-control" name="title" id="title" required>
                         </div>
                         <div class="form-group">
                             <label>Body</label>
-                            <textarea class="form-control" name="body"></textarea>
+                            <textarea class="form-control" name="body" id="body" required></textarea>
                           </div>
-                        <button type="submit" class="btn btn-primary">Send Notification</button>
+                        <button type="button" class="btn btn-primary btn-sendNotif">Send Notification</button>
                     </form>
 
                 </div>
@@ -35,11 +35,10 @@
         </div>
     </div>
 </div>
-
-<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
-
-
     var firebaseConfig = {
         apiKey: "AIzaSyDz2XnmikLRO8-OtKDtyamKtXw9siYoX4g",
         authDomain: "learnapi-2f9e0.firebaseapp.com",
@@ -54,6 +53,23 @@
     firebase.initializeApp(firebaseConfig);
     const messaging = firebase.messaging();
 
+// Get registration token. Initially this makes a network call, once retrieved
+// subsequent calls to getToken will return from cache.
+messaging.getToken({ vapidKey: 'BGGTXEzNWPBcpRZJcmHFM2VdN4JBRQqiLl963jUsNgvmGfcTVzljn_zEAr2fbk1KS7xokw98s7PBi3Q2ihHOl0E' }).then((currentToken) => {
+  if (currentToken) {
+    // Send the token to your server and update the UI if necessary
+    // ...
+    console.log('Registration token available. Token is '+currentToken);
+  } else {
+    // Show permission request UI
+    // ...
+    console.log('No registration token available. Request permission to generate one.');
+  }
+}).catch((err) => {
+  console.log('An error occurred while retrieving token. ', err);
+  // ...
+});
+
     function initFirebaseMessagingRegistration() {
             messaging
             .requestPermission()
@@ -61,7 +77,6 @@
                 return messaging.getToken()
             })
             .then(function(token) {
-                console.log(token);
 
                 $.ajaxSetup({
                     headers: {
@@ -90,14 +105,42 @@
      }  
     
 
-    messaging.onMessage(function(payload) {
-        const noteTitle = payload.notification.title;
-        const noteOptions = {
-            body: payload.notification.body,
-            icon: payload.notification.icon,
-        };
-        new Notification(noteTitle, noteOptions);
-    });
+    // messaging.onMessage(function(payload) {
+    //     const noteTitle = payload.notification.title;
+    //     const noteOptions = {
+    //         body: payload.notification.body,
+    //         icon: payload.notification.icon,
+    //     };
+    //     new Notification(noteTitle, noteOptions);
+    // });
 
+    $(document).on("click",".btn-sendNotif",function() {
+        if ($('#title').val()=='' || $('#body').val()=='') {
+            alert('Please Input Form');
+            return false;
+        }
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            url: $(this).closest('form').attr('action'),
+            type: $(this).closest('form').attr('method'),
+            data: {
+                title: $('#title').val(),
+                body: $('#body').val(),
+            },
+            dataType: 'json',
+            success: function (response) {
+                $('form').trigger('reset');
+                alert('Success Send Notif');
+            },
+            error: function (err) {
+                console.log(err);
+            },
+        });
+    });
 </script>
 @endsection
