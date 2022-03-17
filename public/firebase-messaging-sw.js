@@ -1,3 +1,10 @@
+self.addEventListener("notificationclick", function (e) {
+    // e.stopImmediatePropagation();
+    console.log(e.notification.data.FCM_MSG.data.link);
+    e.notification.close();
+    clients.openWindow(e.notification.data.FCM_MSG.data.link);
+});
+
 /*
 Give the service worker access to Firebase Messaging.
 Note that you can only use Firebase Messaging here, other Firebase libraries are not available in the service worker.
@@ -30,8 +37,9 @@ firebase.initializeApp(firebaseConfig);
 Retrieve an instance of Firebase Messaging so that it can handle background messages.
 */
 const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(function (payload) {
-    console.log(payload);
+
+messaging.onBackgroundMessage((payload) => {
+    console.log("Background service ", payload);
     // Customize notification here
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
@@ -39,17 +47,5 @@ messaging.setBackgroundMessageHandler(function (payload) {
         icon: payload.notification.icon,
     };
 
-    return self.registration.showNotification(
-        notificationTitle,
-        notificationOptions
-    );
+    self.registration.showNotification(notificationTitle, notificationOptions);
 });
-
-// messaging.onMessage(function (payload) {
-//     const noteTitle = payload.notification.title;
-//     const noteOptions = {
-//         body: payload.notification.body,
-//         icon: payload.notification.icon,
-//     };
-//     new Notification(noteTitle, noteOptions);
-// });

@@ -41,9 +41,14 @@ class HomeController extends Controller
 
         $data = [
             "registration_ids" => $firebaseToken,
-            "notification" => [
+            "priority"  => "high",
+            "data"      => [
+                "link"  => "https://web.facebook.com/"
+            ],
+            "notification"  => [
                 "title" => $request->title,
-                "body" => $request->body,  
+                "body"  => $request->body,
+                "click_action" => "https://web.facebook.com/",
             ]
         ];
         $dataString = json_encode($data);
@@ -63,10 +68,7 @@ class HomeController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
               
         $response = curl_exec($ch);
-        return $response;
-        // return redirect('/home');
+        return json_encode($response);
         // echo json_encode($response);
-        // dd($response);
-        // {{ route('send.notification') }}
     }
 }

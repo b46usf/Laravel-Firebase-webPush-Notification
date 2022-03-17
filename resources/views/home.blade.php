@@ -36,9 +36,24 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    // Initialize the service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+            scope: '.'
+        }).then(function (registration) {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function (err) {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    }
+</script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
+
     var firebaseConfig = {
         apiKey: "AIzaSyDz2XnmikLRO8-OtKDtyamKtXw9siYoX4g",
         authDomain: "learnapi-2f9e0.firebaseapp.com",
@@ -52,67 +67,77 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const messaging = firebase.messaging();
+    
+    if ("Notification" in window && navigator.serviceWorker) {
+        // Display the UI to let the user toggle notifications
+        messaging.onMessage(function (payload) {
+            console.log("Foreground service ", payload);
+            const noteTitle = payload.notification.title;
+            const noteOptions = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+                click_action: payload.data.link,
+                // To handle notification click when notification is moved to notification tray
+                data: {
+                    click_action: payload.notification.click_action,
+                },
+            };
+            
+            var notification = new Notification(noteTitle, noteOptions);
+            notification.onclick = function(event) {
+                event.preventDefault();
+                window.open(payload.notification.click_action , '_blank');
+                notification.close();
+            }
+        });
+
+    }    
 
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
-messaging.getToken({ vapidKey: 'BGGTXEzNWPBcpRZJcmHFM2VdN4JBRQqiLl963jUsNgvmGfcTVzljn_zEAr2fbk1KS7xokw98s7PBi3Q2ihHOl0E' }).then((currentToken) => {
-  if (currentToken) {
-    // Send the token to your server and update the UI if necessary
-    // ...
-    console.log('Registration token available. Token is '+currentToken);
-  } else {
-    // Show permission request UI
-    // ...
-    console.log('No registration token available. Request permission to generate one.');
-  }
-}).catch((err) => {
-  console.log('An error occurred while retrieving token. ', err);
-  // ...
-});
 
     function initFirebaseMessagingRegistration() {
             messaging
             .requestPermission()
             .then(function () {
-                return messaging.getToken()
-            })
-            .then(function(token) {
+                messaging.getToken({ vapidKey: 'BGGTXEzNWPBcpRZJcmHFM2VdN4JBRQqiLl963jUsNgvmGfcTVzljn_zEAr2fbk1KS7xokw98s7PBi3Q2ihHOl0E' }).then((currentToken) => {
+                    if (currentToken) {
+                        // Send the token to your server and update the UI if necessary
+                        // ...
+                        console.log('Registration token available. Token is '+currentToken);
 
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '{{ route("save-token") }}',
+                            type: 'POST',
+                            data: {
+                                token: currentToken
+                            },
+                            dataType: 'JSON',
+                            success: function (response) {
+                                console.log(response);
+                            },
+                            error: function (err) {
+                                console.log('User Chat Token Error'+ err);
+                            },
+                        });
+
+                    } else {
+                        // Show permission request UI
+                        // ...
+                        console.log('No registration token available. Request permission to generate one.');
                     }
+                }).catch((err) => {
+                    console.log('An error occurred while retrieving token. ', err);
+                    // ...
                 });
-
-                $.ajax({
-                    url: '{{ route("save-token") }}',
-                    type: 'POST',
-                    data: {
-                        token: token
-                    },
-                    dataType: 'JSON',
-                    success: function (response) {
-                        alert('Token saved successfully.');
-                    },
-                    error: function (err) {
-                        console.log('User Chat Token Error'+ err);
-                    },
-                });
-
-            }).catch(function (err) {
-                toastr.error('User Chat Token Error'+ err, null, {timeOut: 3000, positionClass: "toast-bottom-right"});
-            });
-     }  
-    
-
-    // messaging.onMessage(function(payload) {
-    //     const noteTitle = payload.notification.title;
-    //     const noteOptions = {
-    //         body: payload.notification.body,
-    //         icon: payload.notification.icon,
-    //     };
-    //     new Notification(noteTitle, noteOptions);
-    // });
+            })
+    }
 
     $(document).on("click",".btn-sendNotif",function() {
         if ($('#title').val()=='' || $('#body').val()=='') {
